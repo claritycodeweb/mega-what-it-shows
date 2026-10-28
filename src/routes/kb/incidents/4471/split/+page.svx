@@ -1,0 +1,73 @@
+---
+layout: runbook
+title: '#4471 split · three problems, not one'
+owner: claritycodeweb
+status: proposed
+reviewed: 2026-10-28
+signature: 'v1.eyJzdWIiOiIxNjkwIiwiYXVkIjoiY2hhbGxlbmdlOndoYXQtaXQtc2hvd3MiLCJpYXQiOjE3OTMyMjczMTYsImV4cCI6MTc5MzMxMzcxNn0.X2S5QJyJ3JjBeHx7KsXaRtcw-mXxr2o0LT16TOP-7uM'
+---
+
+<script>
+  import ProblemTable from '#lib/kb/ProblemTable.svelte';
+  import CauseTable from '#lib/kb/CauseTable.svelte';
+  import OneDayReports from '#lib/kb/OneDayReports.svelte';
+  import Callout from '#lib/kb/Callout.svelte';
+  import RenderStamp from '#lib/kb/RenderStamp.svelte';
+
+  const issues = {
+    parser: 'https://github.com/claritycodeweb/mega-what-it-shows/issues/1',
+    hint: 'https://github.com/claritycodeweb/mega-what-it-shows/issues/2',
+    'one-day': 'https://github.com/claritycodeweb/mega-what-it-shows/issues/3',
+  };
+</script>
+
+[#4471](/kb/incidents/4471) says one issue, one fix queued. Its own table already disagrees: it finds two
+causes, and its footnote sets a third kind of report aside. Read by what the reports say, not by
+their subject line, #4471 holds three problems. Each one now has its own ticket.
+
+<Callout kind="warn">
+The queued parser fix will not close #4471. Form bookings from booking-v3 tenants and the one-day
+moves need their own fixes.
+</Callout>
+
+## The split
+
+<ProblemTable ticket={4471} {issues} />
+
+Counted from `reports-4471.json` at build time: one report per id (the export repeats some), tenant
+from the desk's directory, cause from `src/lib/kb/causes.ts`, one-day moves from `desk-notes.json`.
+Rules in `src/lib/kb/problems.ts`.
+
+## The three problems
+
+**`parser`: the shared parser reads dates month first.** Every tenant on file writes the day
+first, so 7 April comes out as 4 July. App, email and form bookings on booking-v2 all go through
+it. This is the bug the queued fix is for.
+
+**`hint`: booking-v3 prints `MM/DD/YYYY` under its date field.** People type what the hint tells
+them, month first, and the form reads the date the tenant's way, day first. Only form bookings at
+booking-v3 tenants. Fixing the parser does not fix this: the hint is wrong, not the reading.
+
+**`one-day`: the date moves by one day.** No day and month swap here: Tuesday 12 May becomes
+Monday 11 May, a meeting lands on Tuesday in Lisbon and Monday in Toronto. That points at time zones
+or the day boundary, not at the parser. The desk saw this (`desk-notes.json`), but the table on
+#4471 still files these under `parser` by tenant.
+
+<OneDayReports />
+
+## Why one ticket hid three
+
+- Duplicates were merged on subject alone ([decision 0001](/kb/decisions/0001-dedupe-by-subject)).
+  "Date is wrong" fits all three problems.
+- Intake tags guess from the reporter's browser, not the tenant, so they do not name the cause.
+  The table below shows how far they are off.
+
+<CauseTable ticket={4471} />
+
+## For the desk
+
+- Before merging a date report into an open ticket, check tenant, form and channel (the
+  [explorer](/kb/triage/dedupe) does this), and read the body for a one-day move.
+- Keep #4471 for history; track the work on the three tickets above.
+
+<RenderStamp {signature} />
