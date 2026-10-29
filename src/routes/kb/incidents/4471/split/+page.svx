@@ -34,8 +34,9 @@ moves need their own fixes.
 
 <ProblemTable ticket={4471} {issues} />
 
-Counted from `reports-4471.json` at build time: one report per id (the export repeats some), tenant
-from the desk's directory, cause from `src/lib/kb/causes.ts`, one-day moves from `desk-notes.json`.
+Counted the desk's way, from `reports-4471.json` as exported: one report per id (the export repeats
+some), cause by tenant from `src/lib/kb/causes.ts`, one-day moves from `desk-notes.json`. A one-day
+report stays counted under the cause it is filed under, as in the desk's own table below.
 Rules in `src/lib/kb/problems.ts`.
 
 ## The three problems
@@ -50,8 +51,8 @@ booking-v3 tenants. Fixing the parser does not fix this: the hint is wrong, not 
 
 **`one-day`: the date moves by one day.** No day and month swap here: Tuesday 12 May becomes
 Monday 11 May, a meeting lands on Tuesday in Lisbon and Monday in Toronto. That points at time zones
-or the day boundary, not at the parser. The desk saw this (`desk-notes.json`), but the table on
-#4471 still files these under `parser` by tenant.
+or the day boundary, not at the parser. The desk saw this (`desk-notes.json`) and files these under
+`parser` by tenant, so they count there too; the time-zone fix is separate.
 
 <OneDayReports />
 

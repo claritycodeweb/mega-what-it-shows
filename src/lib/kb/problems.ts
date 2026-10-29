@@ -1,13 +1,14 @@
-// #4471 split by problem, not by subject. Builds on causes.ts and adds the one thing it leaves out:
-// reports whose dates moved by one day are not a month flip, whatever tenant they came from.
+// #4471 split by problem, not by subject. Counts the desk's way (causes.ts): every report under the
+// cause its tenant gives it. Reports the desk read as a one-day move (desk-notes.json) are a problem
+// of their own as well, and stay counted where they are filed, as the desk counts them.
 import { causeOf, uniqueById, type Report, type Tenant } from '#lib/kb/causes';
 
 export type Problem = 'parser' | 'hint' | 'one-day' | 'unplaced';
 
-// A report the desk read as a one-day move (desk-notes.json) is its own problem; the rest go by cause.
-export function problemOf(r: Report, t: Tenant | undefined, oneDayMove: readonly string[]): Problem {
-  if (oneDayMove.includes(r.id)) return 'one-day';
-  return causeOf(r, t) ?? 'unplaced';
+// The problems a report belongs to: its cause, plus `one-day` when the desk read it as one.
+export function problemsOf(r: Report, t: Tenant | undefined, oneDayMove: readonly string[]): Problem[] {
+  const cause: Problem = causeOf(r, t) ?? 'unplaced';
+  return oneDayMove.includes(r.id) ? [cause, 'one-day'] : [cause];
 }
 
 export type ProblemGroup = {
@@ -28,8 +29,7 @@ export function splitTicket(
   const merged = uniqueById(all).filter((r) => r.mergedInto === ticket);
   const byProblem = new Map<Problem, Report[]>();
   for (const r of merged) {
-    const p = problemOf(r, tenantOf(r), oneDayMove);
-    byProblem.set(p, [...(byProblem.get(p) ?? []), r]);
+    for (const p of problemsOf(r, tenantOf(r), oneDayMove)) byProblem.set(p, [...(byProblem.get(p) ?? []), r]);
   }
   const groups = [...byProblem.entries()]
     .map(([problem, rs]) => {

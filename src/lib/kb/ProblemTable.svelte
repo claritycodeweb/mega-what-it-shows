@@ -9,7 +9,8 @@
   let { ticket, issues = {} }: { ticket: number; issues?: Partial<Record<Problem, string>> } = $props();
 
   const split = $derived(splitTicket(reports as Report[], ticket, tenantOf, notes.oneDayMove));
-  const counted = $derived(split.groups.reduce((n, g) => n + g.reports.length, 0));
+  const filed = $derived(split.groups.filter((g) => g.problem !== 'one-day').reduce((n, g) => n + g.reports.length, 0));
+  const oneDay = $derived(split.groups.find((g) => g.problem === 'one-day')?.reports.length ?? 0);
   const channels = (c: Record<string, number>) =>
     Object.entries(c)
       .sort((a, b) => b[1] - a[1])
@@ -45,7 +46,8 @@
 </table>
 
 <p class="muted">
-  {counted === split.merged.length ? `Every report is counted once: ${counted} of ${split.merged.length}.` : `Counted ${counted} of ${split.merged.length}: check the split.`}
+  {filed === split.merged.length ? `Every report is filed under one cause: ${filed} of ${split.merged.length}.` : `Filed ${filed} of ${split.merged.length}: check the split.`}
+  {#if oneDay}The {oneDay} <code>one-day</code> reports are also counted under the cause they are filed under, as the desk counts them.{/if}
 </p>
 
 <style>
