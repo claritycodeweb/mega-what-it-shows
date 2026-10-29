@@ -2,7 +2,7 @@
 layout: runbook
 title: '#4471 split · three problems, not one'
 owner: claritycodeweb
-status: proposed
+status: living
 reviewed: 2026-10-28
 signature: 'v1.eyJzdWIiOiIxNjkwIiwiYXVkIjoiY2hhbGxlbmdlOndoYXQtaXQtc2hvd3MiLCJpYXQiOjE3OTMyMjczMTYsImV4cCI6MTc5MzMxMzcxNn0.X2S5QJyJ3JjBeHx7KsXaRtcw-mXxr2o0LT16TOP-7uM'
 ---
@@ -65,10 +65,24 @@ or the day boundary, not at the parser. The desk saw this (`desk-notes.json`) an
 
 <CauseTable ticket={4471} />
 
+## Since 5 October
+
+Engineering closed #4471 on 5 October. That closes two of the three problems, not all of them:
+
+- `parser`: **fixed** (`fix(dates): parse dd/mm for eu locales`). [#1](https://github.com/claritycodeweb/mega-what-it-shows/issues/1) closed.
+- `hint`: **won't fix**, the booking-v3 form is retired. [#2](https://github.com/claritycodeweb/mega-what-it-shows/issues/2) closed as not planned.
+- `one-day`: **still open.** Neither change touches time zones or the day boundary.
+  [#3](https://github.com/claritycodeweb/mega-what-it-shows/issues/3) stays open.
+
+<Callout kind="warn">
+Closing #4471 does not close the one-day moves. Do not merge a new one-day report into #4471 or #1;
+it belongs on #3.
+</Callout>
+
 ## For the desk
 
 - Before merging a date report into an open ticket, check tenant, form and channel (the
   [explorer](/kb/triage/dedupe) does this), and read the body for a one-day move.
-- Keep #4471 for history; track the work on the three tickets above.
+- Keep #4471 for history; track what is left on #3.
 
 <RenderStamp {signature} />
